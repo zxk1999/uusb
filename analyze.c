@@ -46,7 +46,7 @@ void parse_block_line(BlockData *block, const char *line) {
 }
 
 int main() {
-    FILE *fp = fopen("log.txt", "r");
+    FILE *fp = fopen("output_3_19_myloog.txt", "r");
     if (!fp) {
         perror("Error opening file");
         return 1;
