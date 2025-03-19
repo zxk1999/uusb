@@ -65,13 +65,12 @@ with open(log_file, "r") as f:
 
 basic_blocks = []
 start=1
-current_block = {"type": "", "lines": []}
+current_block = {"type": "", "lines": [], "deque":"", "doorbell":"", "iman":"", "eint":"", "dma_addr":"", "dma_len":"", "TD_flag":""}
 for line in log_lines:
     matched = False
     line = line.strip()
     if not line:
         continue
-    
     if start:
         for block_type, conditions in BLOCK_TYPES.items():
             if (any(keyword in line for keyword in conditions["start"])):
@@ -86,7 +85,7 @@ for line in log_lines:
                 current_block["lines"].append(line)
                 current_block["type"] = block_type
                 basic_blocks.append(current_block)
-            current_block = {"type": block_type, "lines": []}
+            current_block = {"type": block_type, "lines": [], "deque":"", "doorbell":"", "iman":"", "eint":"", "dma_addr":"", "dma_len":"", "TD_flag":""}
             matched = True
             break  
 
@@ -104,12 +103,49 @@ for line in log_lines:
 
 if current_block:
     basic_blocks.append(current_block)
-
-with open('output_3_18_myloog.txt', 'w') as f:
+temp=''
+with open('output_3_19_myloog.txt', 'w') as f:
     for idx, block in enumerate(basic_blocks):
         print(f"Block {idx + 1} - Type: {block['type']}",file=f)
         for line in block["lines"]:
             print(f"  {line}",file=f)
+            if ("MMIO Write: addr=0xfebd1038" in line):
+                block["deque"]=line.split("val=")[1]
+            if ("MMIO Write: addr=0xfebd2004" in line):
+                block["doorbell"]=line.split("val=")[1]
+            if ("MMIO Write: addr=0xfebd1020" in line):
+                block["iman"]=line.split("val=")[1]
+            if ("MMIO Write: addr=0xfebd0044" in line):
+                block["eint"]=line.split("val=")[1]
+
+
+            if block["type"]=="Data Transfer":
+                if "Write to GPA" in line:
+                    if line.split(", new value")[0].split("to GPA ")[1][-1]=="0":
+                        temp=line.split(", new value")[0].split("to GPA ")[1]
+                        temp=line.split(", new value: ")[1]
+                        byte_data = bytes.fromhex(temp.replace(" ", ""))
+                        block["dma_addr"] = hex(int.from_bytes(byte_data, byteorder='little'))
+
+                    elif line.split(", new value")[0].split("to GPA ")[1][-1]=="8":
+                        temp=line.split(", new value")[0].split("to GPA ")[1]
+                        temp=line.split(", new value: ")[1]
+                        byte_data = bytes.fromhex(temp.replace(" ", ""))
+                        block["dma_len"] = hex(int.from_bytes(byte_data, byteorder='little'))
+
+                    elif line.split(", new value")[0].split("to GPA ")[1][-1]=="c":
+                        temp=line.split(", new value")[0].split("to GPA ")[1]
+                        temp=line.split(", new value: ")[1]
+                        byte_data = bytes.fromhex(temp.replace(" ", ""))
+                        block["TD_flag"] = hex(int.from_bytes(byte_data, byteorder='little'))
+
+        print(f"block[\"deque\"]: {block['deque']} ",file=f)
+        print(f"block[\"doorbell\"]: {block['doorbell']} ",file=f)
+        print(f"block[\"iman\"]: {block['iman']} ",file=f)
+        print(f"block[\"eint\"]: {block['eint']} ",file=f)
+        print(f"block[\"dma_addr\"]: {block['dma_addr']} ",file=f)
+        print(f"block[\"dma_len\"]: {block['dma_len']} ",file=f)
+        print(f"block[\"TD_flag\"]: {block['TD_flag']} ",file=f)
         print("\n",file=f)
 
     block_relations = []
