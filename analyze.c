@@ -12,6 +12,7 @@ typedef struct {
     char doorbell[20];
     char iman[20];
     char eint[20];
+    char data_trb[20];
     char dma_addr[20];
     char dma_len[20];
     char TD_flag[20];
@@ -40,6 +41,7 @@ void parse_block_line(BlockData *block, const char *line) {
     else if (strcmp(key, "doorbell") == 0) strcpy(block->doorbell, value);
     else if (strcmp(key, "iman") == 0) strcpy(block->iman, value);
     else if (strcmp(key, "eint") == 0) strcpy(block->eint, value);
+    else if (strcmp(key, "data_trb") == 0) strcpy(block->data_trb, value);
     else if (strcmp(key, "dma_addr") == 0) strcpy(block->dma_addr, value);
     else if (strcmp(key, "dma_len") == 0) strcpy(block->dma_len, value);
     else if (strcmp(key, "TD_flag") == 0) strcpy(block->TD_flag, value);
@@ -68,6 +70,7 @@ int main() {
                 printf("  doorbell: %s\n", current.doorbell);
                 printf("  iman: %s\n", current.iman);
                 printf("  eint: %s\n", current.eint);
+                printf("  data_trb: %s\n", current.data_trb);
                 printf("  dma_addr: %s\n", current.dma_addr);
                 printf("  dma_len: %s\n", current.dma_len);
                 printf("  TD_flag: %s\n\n", current.TD_flag);
@@ -91,6 +94,7 @@ int main() {
         printf("  doorbell: %s\n", current.doorbell);
         printf("  iman: %s\n", current.iman);
         printf("  eint: %s\n", current.eint);
+        printf("  dma_addr: %s\n", current.data_trb);
         printf("  dma_addr: %s\n", current.dma_addr);
         printf("  dma_len: %s\n", current.dma_len);
         printf("  TD_flag: %s\n\n", current.TD_flag);
